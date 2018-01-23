@@ -1,6 +1,8 @@
 
 # DapperSeries
-Sample code for the Dapper Series of blog posts
+Sample code for the Dapper Series of blog posts:
+
+1) [Loading an Object from SQL Server using Dapper](https://www.davepaquette.com/archive/2018/01/22/loading-an-object-graph-with-dapper.aspx)
 
 The sample project for this series of blog posts is an ASP.NET Core project containing api controllers. To test the project you will issue GET and POST to the api. 
 
