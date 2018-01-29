@@ -24,31 +24,44 @@ namespace DapperSeries.Controllers
         
         //GET api/aircraft
         [HttpGet]
-        public async Task<IEnumerable<Aircraft>> Get()
+        public async Task<IEnumerable<Aircraft>> Get(string model)
         {
             IEnumerable<Aircraft> aircraft;
 
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var query = @"
-SELECT 
-       Id
-      ,Manufacturer
-      ,Model
-      ,RegistrationNumber
-      ,FirstClassCapacity
-      ,RegularClassCapacity
-      ,CrewCapacity
-      ,ManufactureDate
-      ,NumberOfEngines
-      ,EmptyWeight
-      ,MaxTakeoffWeight
-  FROM Aircraft";
-                aircraft = await connection.QueryAsync<Aircraft>(query);
+
+                if (string.IsNullOrWhiteSpace(model))
+                {
+                    var query = @"
+        SELECT 
+        Id
+        ,Manufacturer
+        ,Model
+        ,RegistrationNumber
+        ,FirstClassCapacity
+        ,RegularClassCapacity
+        ,CrewCapacity
+        ,ManufactureDate
+        ,NumberOfEngines
+        ,EmptyWeight
+        ,MaxTakeoffWeight
+        FROM Aircraft";
+
+                    aircraft = await connection.QueryAsync<Aircraft>(query);
+                } 
+                else
+                {
+                    aircraft = await connection.QueryAsync<Aircraft>("GetAircraftByModel",
+                                            new {Model = model}, 
+                                            commandType: CommandType.StoredProcedure);
+                }
+
             }
             return aircraft;
         }
+
 
         // GET api/aircraft/125
         [HttpGet("{id}")]

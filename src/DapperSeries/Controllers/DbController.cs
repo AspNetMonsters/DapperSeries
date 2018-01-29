@@ -46,6 +46,10 @@ namespace DapperSeries.Controllers
                 var createTablesCommand = connection.CreateCommand();
                 createTablesCommand.CommandText = System.IO.File.ReadAllText("./Scripts/CreateTables.sql");
                 await createTablesCommand.ExecuteNonQueryAsync();
+
+                var createProcsCommand = connection.CreateCommand();
+                createProcsCommand.CommandText = System.IO.File.ReadAllText("./Scripts/CreateStoredProcedures.sql");
+                await createProcsCommand.ExecuteNonQueryAsync();
             }
             return Ok();
         }
