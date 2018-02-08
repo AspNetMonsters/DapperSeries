@@ -13,6 +13,39 @@ CREATE TABLE Aircraft
         MaxTakeoffWeight int
     )
 
+CREATE TABLE Airport 
+   (
+         Id int not null IDENTITY(1,1) CONSTRAINT pk_Airport_Id PRIMARY KEY,
+         Code nvarchar(5) not null,
+         City nvarchar(100) not null,
+         ProvinceState nvarchar(100) not null,
+         Country nvarchar(100) not null
+   )
+
+CREATE TABLE ScheduledFlight
+   (
+       Id int not null IDENTITY(1,1) CONSTRAINT pk_ScheduledFlight_Id PRIMARY KEY,
+       FlightNumber nvarchar(10) not null,
+       DepartureAirportId int not null,
+       DepartureHour int not null,
+       DepartureMinute int not null,
+       ArrivalAirportId int not null,
+       ArrivalHour int not null,
+       ArrivalMinute int not null,
+       IsSundayFlight bit not null,
+       IsMondayFlight bit not null,
+       IsTuesdayFlight bit not null,
+       IsWednesdayFlight bit not null,
+       IsThursdayFlight bit not null,
+       IsFridayFlight bit not null,
+       IsSaturdayFlight bit not null,
+       CONSTRAINT FK_ScheduledFlight_DepartureAirport FOREIGN KEY (DepartureAirportId)     
+            REFERENCES Airport (Id),
+        CONSTRAINT FK_ScheduledFlight_ArrivalAirport FOREIGN KEY (ArrivalAirportId)     
+            REFERENCES Airport (Id)
+   )
+
+
     
 INSERT [dbo].[Aircraft] ([Manufacturer], [Model], [RegistrationNumber], [FirstClassCapacity], [RegularClassCapacity], [CrewCapacity], [ManufactureDate], [NumberOfEngines], [EmptyWeight], [MaxTakeoffWeight]) VALUES (N'Boeing', N'737 MAX 8', N'C-FNAX ', 12, 162, 6, CAST(N'2017-09-01' AS Date), 2, NULL, NULL)
 
@@ -262,3 +295,33 @@ INSERT [dbo].[Aircraft] ([Manufacturer], [Model], [RegistrationNumber], [FirstCl
 
 INSERT [dbo].[Aircraft] ([Manufacturer], [Model], [RegistrationNumber], [FirstClassCapacity], [RegularClassCapacity], [CrewCapacity], [ManufactureDate], [NumberOfEngines], [EmptyWeight], [MaxTakeoffWeight]) VALUES ( N'Boeing', N'767-300', N'C-GN ', 24, 238, 8, CAST(N'2015-12-01' AS Date), 2, NULL, NULL)
 
+
+INSERT INTO [dbo].[Airport]([Code], [City], [ProvinceState], [Country])
+VALUES
+    ('YYC',	'Calgary',	'Alberta', 'Canada'),
+    ('YEG',	'Edmonton',	'Alberta',	'Canada'),
+    ('YVR',	'Vancouver',	'British Columbia',	'Canada'),
+    ('YYJ',	'Victoria',	'British Columbia',	'Canada'),
+    ('YYZ',	'Toronto',	'Ontario',	'Canada'),
+    ('YWG',	'Winnipeg',	'Manitoba',	'Canada'),
+    ('YXE',	'Saskatoon',	'Saskatchewan',	'Canada'),
+    ('YUL',	'Montreal',	'Quebec',	'Canada')
+
+
+INSERT INTO [dbo].[ScheduledFlight]([FlightNumber], [DepartureAirportId],
+       [DepartureHour],
+       [DepartureMinute],
+       [ArrivalAirportId],
+       [ArrivalHour],
+       [ArrivalMinute],
+       [IsSundayFlight],
+       [IsMondayFlight],
+       [IsTuesdayFlight],
+       [IsWednesdayFlight],
+       [IsThursdayFlight],
+       [IsFridayFlight],
+       [IsSaturdayFlight])
+VALUES 
+    ('WS 135', (SELECT Id FROM Airport WHERE Code = 'YYC'), 18, 18, (SELECT ID FROM Airport WHERE Code = 'YVR'), 18, 44, 0,1,1,1,1,1,0 ),
+    ('WS 137', (SELECT Id FROM Airport WHERE Code = 'YYC'), 19, 30, (SELECT ID FROM Airport WHERE Code = 'YVR'), 20, 1, 0,1,1,1,1,1,0 ),
+    ('WS 139', (SELECT Id FROM Airport WHERE Code = 'YYC'), 21, 30, (SELECT ID FROM Airport WHERE Code = 'YVR'), 22, 1, 1,0,0,1,1,1,1 )

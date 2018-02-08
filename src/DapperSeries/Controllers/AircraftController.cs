@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using System.IO;
 using System.Data;
 using Dapper;
+using DapperSeries.Entities;
 
 namespace DapperSeries.Controllers
 {

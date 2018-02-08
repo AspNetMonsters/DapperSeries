@@ -1,6 +1,6 @@
 using System;
 
-namespace DapperSeries 
+namespace DapperSeries.Entities
 {
     public class Aircraft 
     {
@@ -9,7 +9,6 @@ namespace DapperSeries
         public string Manufacturer {get; set;}
 
         public string Model {get; set;}
-
 
         public string RegistrationNumber {get; set;}
 
@@ -26,6 +25,5 @@ namespace DapperSeries
         public int EmptyWeight {get; set;}
 
         public int MaxTakeoffWeight {get; set;}
-
     }    
 }
