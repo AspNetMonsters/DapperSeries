@@ -44,6 +44,7 @@ namespace DapperSeries.Controllers
             {
                 await connection.OpenAsync();
                 var createTablesCommand = connection.CreateCommand();
+                createTablesCommand.CommandTimeout = 600000;
                 createTablesCommand.CommandText = System.IO.File.ReadAllText("./Scripts/CreateTables.sql");
                 await createTablesCommand.ExecuteNonQueryAsync();
 
