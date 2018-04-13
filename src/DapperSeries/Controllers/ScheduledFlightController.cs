@@ -73,24 +73,20 @@ FROM ScheduledFlight s
             {
                 await connection.OpenAsync();
                 var query = @"
+DECLARE @DepartureAirportId INT
+SELECT @DepartureAirportId = Id FROM Airport WHERE Code = @FromCode
+
 SELECT s.Id, s.FlightNumber, s.DepartureHour, s.DepartureMinute, s.ArrivalHour, s.ArrivalMinute, s.IsSundayFlight, s.IsMondayFlight, s.IsTuesdayFlight, s.IsWednesdayFlight, s.IsThursdayFlight, s.IsFridayFlight, s.IsSaturdayFlight,
 s.DepartureAirportId, s.ArrivalAirportId
 FROM ScheduledFlight s
-	INNER JOIN Airport a1
-		ON s.DepartureAirportId = a1.Id
-    WHERE a1.Code = @FromCode
-    
-SELECT a1.Id, a1.Code, a1.City, a1.ProvinceState, a1.Country
-FROM Airport a1
-	WHERE a1.Code = @FromCode
-UNION    
-SELECT DISTINCT a2.Id, a2.Code, a2.City, a2.ProvinceState, a2.Country
-FROM ScheduledFlight s
-	INNER JOIN Airport a1
-		ON s.DepartureAirportId = a1.Id
-    INNER JOIN Airport a2
-		ON s.ArrivalAirportId = a2.Id
-    WHERE a1.Code = @FromCode";
+    WHERE s.DepartureAirportId = @DepartureAirportId
+
+SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country
+FROM Airport
+	WHERE Airport.Id = @DepartureAirportId
+	   OR Airport.Id IN (SELECT s.ArrivalAirportId
+	                                FROM ScheduledFlight s
+									WHERE s.DepartureAirportId = @DepartureAirportId)";
 
                 using (var multi = await connection.QueryMultipleAsync(query, new{FromCode = from} ))
                 {
