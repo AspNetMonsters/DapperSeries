@@ -17,15 +17,16 @@ namespace DapperSeries.Benchmarks
 
         }
         [Benchmark]
-        public async Task<IEnumerable<ScheduledFlight>> SingleQuery()
+        public async Task<IEnumerable<ScheduledFlight>> MultiMapping()
         {
             return await controller.Get("YYC");
         }
 
         [Benchmark]
-        public async Task<IEnumerable<ScheduledFlight>> MultipleQuery()
+        public async Task<IEnumerable<ScheduledFlight>> MultipleResultSets()
         {
             return await controller.GetAlt("YYC");
         }
+
     }
 }
