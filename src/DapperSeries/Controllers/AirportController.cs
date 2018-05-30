@@ -56,7 +56,8 @@ AND a.Code = @AirportCode";
                 {
                     airportSchedule = new AirportSchedule
                     {
-                        Airport = await multi.ReadFirstAsync<Airport>()
+                        Airport = await multi.ReadFirstAsync<Airport>(),
+                        Day = day
                     };
 
                     airportSchedule.Arrivals = 
