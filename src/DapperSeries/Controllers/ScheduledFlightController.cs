@@ -53,7 +53,7 @@ FROM ScheduledFlight s
 
                 scheduledFlights = 
                     await connection.QueryAsync<ScheduledFlight, Airport, Airport, ScheduledFlight>(query,
-                            (flight, departure, arrival ) => {
+                            (flight, departure, arrival) => {
                                 flight.DepartureAirport = departure;
                                 flight.ArrivalAirport = arrival;
                                 return flight;

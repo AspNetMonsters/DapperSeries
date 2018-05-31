@@ -23,8 +23,8 @@ namespace DapperSeries.Controllers
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
         
-        //GET api/schedule
-        [HttpGet]
+        //GET api/airport/schedule
+        [HttpGet("schedule")]
         public async Task<AirportSchedule> Get(string airportCode, DateTime day)
         {
             AirportSchedule airportSchedule = null;
@@ -35,6 +35,7 @@ namespace DapperSeries.Controllers
                 var query = @"SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country
 FROM Airport
 	WHERE Airport.Code = @AirportCode;
+
 
 SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country
 FROM Airport
@@ -51,17 +52,16 @@ FROM Airport
 							WHERE a.Code = @AirportCode
 									AND f.Day = @Day);
 
-
-SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival,
-sf.*
+SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival
+, sf.*
 FROM Flight f
 INNER JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
 INNER JOIN Airport a ON sf.ArrivalAirportId = a.Id
 WHERE f.Day = @Day
 AND a.Code = @AirportCode;
 
-SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival,
-sf.*
+SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival
+, sf.*
 FROM Flight f
 INNER JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
 INNER JOIN Airport a ON sf.DepartureAirportId = a.Id
@@ -78,25 +78,24 @@ AND a.Code = @AirportCode;
                     };
 
 
-                    var airports = (await multi.ReadAsync<Airport>()).ToDictionary(a => a.Id);
+                    var airports = multi.Read<Airport>().ToDictionary(a => a.Id);
                     airports.Add(airportSchedule.Airport.Id, airportSchedule.Airport);
 
                     airportSchedule.Arrivals = 
                         multi.Read<Flight, ScheduledFlight, Flight>((f, sf) =>
-                        {
-                            f.ScheduledFlight = sf;
-                            sf.ArrivalAirport = airports[sf.ArrivalAirportId];
-                            sf.DepartureAirport = airports[sf.DepartureAirportId];
-                            return f;
-                        }).ToList();
-                    airportSchedule.Departures =
-                        multi.Read<Flight, ScheduledFlight, Flight>((f, sf) =>
-                        {
-                            f.ScheduledFlight = sf;
-                            sf.ArrivalAirport = airports[sf.ArrivalAirportId];
-                            sf.DepartureAirport = airports[sf.DepartureAirportId];
-                            return f;
-                        }).ToList();
+                                             {
+                                                 f.ScheduledFlight = sf;
+                                                 sf.ArrivalAirport = airports[sf.ArrivalAirportId];
+                                                 sf.DepartureAirport = airports[sf.DepartureAirportId];
+                                                 return f;
+                                             });
+                    airportSchedule.Departures = multi.Read<Flight, ScheduledFlight, Flight>((f, sf) =>
+                    {
+                        f.ScheduledFlight = sf;
+                        sf.ArrivalAirport = airports[sf.ArrivalAirportId];
+                        sf.DepartureAirport = airports[sf.DepartureAirportId];
+                        return f;
+                    });
 
 
 

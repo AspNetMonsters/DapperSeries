@@ -7,7 +7,7 @@ namespace DapperSeries.Entities
     {
         public Airport Airport { get; set; }
         public DateTime Day { get; set; }
-        public IList<Flight> Departures { get; set; }
-        public IList<Flight> Arrivals { get; set; }
+        public IEnumerable<Flight> Departures { get; set; }
+        public IEnumerable<Flight> Arrivals { get; set; }
     }
 }
