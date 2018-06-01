@@ -40,29 +40,13 @@ SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Co
 FROM Airport
 	WHERE Airport.Id = @AirportId;
 
-
-SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country
-FROM Airport
-	WHERE Airport.Id IN (SELECT sf.DepartureAirportId
-	                                FROM Flight f
-									JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
-									WHERE sf.ArrivalAirportId  = @AirportId
-										  AND f.Day = @Day)
-		OR Airport.Id IN (SELECT sf.ArrivalAirportId
-							FROM Flight f
-							JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
-							WHERE sf.DepartureAirportId = @AirportId
-									AND f.Day = @Day);
-
 SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival
-, sf.*
 FROM Flight f
 INNER JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
 WHERE f.Day = @Day
 AND sf.ArrivalAirportId = @AirportId;
 
 SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival
-, sf.*
 FROM Flight f
 INNER JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
 WHERE f.Day = @Day
@@ -78,27 +62,9 @@ AND sf.DepartureAirportId = @AirportId;
                     };
 
 
-                    var airports = multi.Read<Airport>().ToDictionary(a => a.Id);
-                    airports.Add(airportSchedule.Airport.Id, airportSchedule.Airport);
-
                     airportSchedule.Arrivals = 
-                        multi.Read<Flight, ScheduledFlight, Flight>((f, sf) =>
-                                             {
-                                                 f.ScheduledFlight = sf;
-                                                 sf.ArrivalAirport = airports[sf.ArrivalAirportId];
-                                                 sf.DepartureAirport = airports[sf.DepartureAirportId];
-                                                 return f;
-                                             });
-                    airportSchedule.Departures = multi.Read<Flight, ScheduledFlight, Flight>((f, sf) =>
-                    {
-                        f.ScheduledFlight = sf;
-                        sf.ArrivalAirport = airports[sf.ArrivalAirportId];
-                        sf.DepartureAirport = airports[sf.DepartureAirportId];
-                        return f;
-                    });
-
-
-
+                        multi.Read<Flight>();
+                    airportSchedule.Departures = multi.Read<Flight>();
                 }
             }
 
@@ -106,3 +72,23 @@ AND sf.DepartureAirportId = @AirportId;
         }
     }
 }
+
+// Just in case you need it!
+//    var airports = multi.Read<Airport>().ToDictionary(a => a.Id);
+//    airports.Add(airportSchedule.Airport.Id, airportSchedule.Airport);
+
+//  airportSchedule.Arrivals = 
+//      multi.Read<Flight, ScheduledFlight, Flight>((f, sf) =>
+//                           {
+//                               f.ScheduledFlight = sf;
+//                               sf.ArrivalAirport = airports[sf.ArrivalAirportId];
+//                               sf.DepartureAirport = airports[sf.DepartureAirportId];
+//                               return f;
+//                           });
+//  airportSchedule.Departures = multi.Read<Flight, ScheduledFlight, Flight>((f, sf) =>
+//  {
+//      f.ScheduledFlight = sf;
+//      sf.ArrivalAirport = airports[sf.ArrivalAirportId];
+//      sf.DepartureAirport = airports[sf.DepartureAirportId];
+//      return f;
+//  });
