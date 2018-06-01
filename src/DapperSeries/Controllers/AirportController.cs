@@ -32,9 +32,13 @@ namespace DapperSeries.Controllers
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var query = @"SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country
+                var query = @"
+DECLARE @AirportId INT
+SELECT @AirportId = Id FROM Airport WHERE Code = @AirportCode
+
+SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country
 FROM Airport
-	WHERE Airport.Code = @AirportCode;
+	WHERE Airport.Id = @AirportId;
 
 
 SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country
@@ -42,31 +46,27 @@ FROM Airport
 	WHERE Airport.Id IN (SELECT sf.DepartureAirportId
 	                                FROM Flight f
 									JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
-									JOIN Airport a ON sf.ArrivalAirportId = a.Id
-									WHERE a.Code = @AirportCode
+									WHERE sf.ArrivalAirportId  = @AirportId
 										  AND f.Day = @Day)
 		OR Airport.Id IN (SELECT sf.ArrivalAirportId
 							FROM Flight f
 							JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
-							JOIN Airport a ON sf.DepartureAirportId = a.Id
-							WHERE a.Code = @AirportCode
+							WHERE sf.DepartureAirportId = @AirportId
 									AND f.Day = @Day);
 
 SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival
 , sf.*
 FROM Flight f
 INNER JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
-INNER JOIN Airport a ON sf.ArrivalAirportId = a.Id
 WHERE f.Day = @Day
-AND a.Code = @AirportCode;
+AND sf.ArrivalAirportId = @AirportId;
 
 SELECT f.Id, f.ScheduledFlightId, f.Day, f.ScheduledDeparture, f.ActualDeparture, f.ScheduledArrival, f.ActualArrival
 , sf.*
 FROM Flight f
 INNER JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id
-INNER JOIN Airport a ON sf.DepartureAirportId = a.Id
 WHERE f.Day = @Day
-AND a.Code = @AirportCode;
+AND sf.DepartureAirportId = @AirportId;
 ";
 
                 using (var multi = await connection.QueryMultipleAsync(query, new { AirportCode = airportCode, Day = day.Date }))
