@@ -92,3 +92,17 @@ AND sf.DepartureAirportId = @AirportId;
 //      sf.DepartureAirport = airports[sf.DepartureAirportId];
 //      return f;
 //  });
+
+//
+//SELECT Airport.Id, Airport.Code, Airport.City, Airport.ProvinceState, Airport.Country 
+//FROM Airport 
+//	WHERE Airport.Id IN (SELECT sf.DepartureAirportId 
+//	                                FROM Flight f 
+//									JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id 
+//									WHERE sf.ArrivalAirportId  = @AirportId 
+//										  AND f.Day = @Day) 
+//		OR Airport.Id IN (SELECT sf.ArrivalAirportId 
+//							FROM Flight f 
+//							JOIN ScheduledFlight sf ON f.ScheduledFlightId = sf.Id 
+//							WHERE sf.DepartureAirportId = @AirportId 
+//									AND f.Day = @Day);
