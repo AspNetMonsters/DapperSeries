@@ -92,5 +92,86 @@ SELECT
             }
             return aircraft;
         }
+
+        // POST api/aircraft
+        [HttpPost()]
+        public async Task<IActionResult> Post([FromBody] Aircraft model)
+        {
+            int newAircraftId;
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var query = @"
+INSERT INTO Aircraft 
+       (Manufacturer
+      ,Model
+      ,RegistrationNumber
+      ,FirstClassCapacity
+      ,RegularClassCapacity
+      ,CrewCapacity
+      ,ManufactureDate
+      ,NumberOfEngines
+      ,EmptyWeight
+      ,MaxTakeoffWeight)
+VALUES (@Manufacturer
+      ,@Model
+      ,@RegistrationNumber
+      ,@FirstClassCapacity
+      ,@RegularClassCapacity
+      ,@CrewCapacity
+      ,@ManufactureDate
+      ,@NumberOfEngines
+      ,@EmptyWeight
+      ,@MaxTakeoffWeight);
+      
+SELECT CAST(SCOPE_IDENTITY() as int)";
+                newAircraftId = await connection.ExecuteScalarAsync<int>(query, model);
+            }
+            return Ok(newAircraftId);
+        }
+
+        // PUT api/aircraft/id
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] Aircraft model)
+        {
+            if (id != model.Id) 
+            {
+                return BadRequest();
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var query = @"
+UPDATE Aircraft 
+  SET  Manufacturer = @Manufacturer
+      ,Model = @Model
+      ,RegistrationNumber = @RegistrationNumber 
+      ,FirstClassCapacity = @FirstClassCapacity
+      ,RegularClassCapacity = @RegularClassCapacity
+      ,CrewCapacity = @CrewCapacity
+      ,ManufactureDate = @ManufactureDate
+      ,NumberOfEngines = @NumberOfEngines
+      ,EmptyWeight = @EmptyWeight
+      ,MaxTakeoffWeight = @MaxTakeoffWeight
+WHERE Id = @Id";
+                await connection.ExecuteAsync(query, model);
+            }
+            return Ok();
+        }
+
+        // DELETE api/aircraft/id
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+        
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var query = "DELETE Aircraft WHERE Id = @Id";
+                await connection.ExecuteAsync(query, new {Id = id});
+            }
+            return Ok();
+        }
     }
 }
