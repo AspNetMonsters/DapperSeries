@@ -10,7 +10,8 @@ CREATE TABLE Aircraft
         ManufactureDate date,
         NumberOfEngines int,
         EmptyWeight int,
-        MaxTakeoffWeight int
+        MaxTakeoffWeight int,
+        RowVer rowversion
     )
 
 CREATE TABLE Airport 

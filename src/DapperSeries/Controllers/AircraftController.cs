@@ -48,6 +48,7 @@ namespace DapperSeries.Controllers
         ,NumberOfEngines
         ,EmptyWeight
         ,MaxTakeoffWeight
+        ,RowVer
         FROM Aircraft";
 
                     aircraft = await connection.QueryAsync<Aircraft>(query);
@@ -87,6 +88,7 @@ SELECT
       ,NumberOfEngines
       ,EmptyWeight
       ,MaxTakeoffWeight
+      ,RowVer
   FROM Aircraft WHERE Id = @Id";
                 aircraft = await connection.QuerySingleAsync<Aircraft>(query, new {Id = id});
             }
@@ -134,6 +136,7 @@ SELECT CAST(SCOPE_IDENTITY() as int)";
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] Aircraft model)
         {
+            byte[] rowVersion;
             if (id != model.Id) 
             {
                 return BadRequest();
@@ -154,10 +157,16 @@ UPDATE Aircraft
       ,NumberOfEngines = @NumberOfEngines
       ,EmptyWeight = @EmptyWeight
       ,MaxTakeoffWeight = @MaxTakeoffWeight
-WHERE Id = @Id";
-                await connection.ExecuteAsync(query, model);
+     OUTPUT inserted.RowVer
+WHERE Id = @Id
+    AND RowVer = @RowVer";
+                rowVersion = await connection.ExecuteScalarAsync<byte[]>(query, model);
             }
-            return Ok();
+
+            if (rowVersion == null) {
+                throw new DBConcurrencyException("The entity you were trying to edit has changed. Reload the entity and try again."); 
+            }
+            return Ok(rowVersion);
         }
 
         // DELETE api/aircraft/id

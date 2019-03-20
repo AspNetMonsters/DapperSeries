@@ -25,5 +25,7 @@ namespace DapperSeries.Entities
         public int EmptyWeight {get; set;}
 
         public int MaxTakeoffWeight {get; set;}
+
+        public byte[] RowVer { get; set; }
     }    
 }
